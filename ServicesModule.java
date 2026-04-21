@@ -192,7 +192,43 @@ public class ServicesModule {
     private static void currencyConverterMenu(Scanner sc) {
         System.out.println("\n────────────────────────────────────────");
         System.out.println("BANK  |  Currency Converter");
+        System.out.println("  Rates: frankfurter.dev");
         System.out.println("────────────────────────────────────────");
-        CurrencyConverter.main(new String[]{});
+        System.out.println("  1.  USD to EUR    2.  EUR to USD");
+        System.out.println("  3.  USD to GBP    4.  GBP to USD");
+        System.out.println("  5.  EUR to GBP    6.  GBP to EUR");
+        System.out.println("  7.  USD to CHF    8.  CHF to USD");
+        System.out.println("  9.  EUR to CHF    10. CHF to EUR");
+        System.out.println("  11. GBP to CHF    12. CHF to GBP");
+        System.out.println("────────────────────────────────────────");
+        System.out.print("  Enter your choice (1-12): ");
+
+        int choice;
+        try { choice = Integer.parseInt(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("  Invalid choice."); return; }
+
+        System.out.print("  Enter amount: $");
+        double amount;
+        try { amount = Double.parseDouble(sc.nextLine().trim()); }
+        catch (NumberFormatException e) { System.out.println("  Invalid amount."); return; }
+
+        // Map choice to currency pair
+        String[][] pairs = {
+                {"USD","EUR"}, {"EUR","USD"}, {"USD","GBP"}, {"GBP","USD"},
+                {"EUR","GBP"}, {"GBP","EUR"}, {"USD","CHF"}, {"CHF","USD"},
+                {"EUR","CHF"}, {"CHF","EUR"}, {"GBP","CHF"}, {"CHF","GBP"}
+        };
+        if (choice < 1 || choice > 12) { System.out.println("  Invalid choice."); return; }
+
+        String from = pairs[choice - 1][0];
+        String to   = pairs[choice - 1][1];
+        try {
+            double rate   = CurrencyConverter.getLiveRate(from, to);
+            double result = Math.round(amount * rate * 100.0) / 100.0;
+            System.out.printf("  %.2f %s = %.2f %s  (rate: %.4f)%n", amount, from, result, to, rate);
+        } catch (Exception e) {
+            System.out.println("  Error fetching rate: " + e.getMessage());
+            System.out.println("  Check your internet connection and try again.");
+        }
     }
 }

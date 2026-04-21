@@ -185,7 +185,7 @@ public class moneyMarket {
                 if (columnsplit.length == 0) {
                     continue; // skip malformed lines
 
-                                }if (columnsplit[0].trim().equals(MoneyID.trim())) {
+                }if (columnsplit[0].trim().equals(MoneyID.trim())) {
                     return true; // moneyID found
                 }
             }
@@ -786,9 +786,9 @@ public class moneyMarket {
             LocalDate dob = null;
 
             DateTimeFormatter[] formats = new DateTimeFormatter[]{
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-                DateTimeFormatter.ofPattern("dd-MM-yyyy"),
-                DateTimeFormatter.ofPattern("MM/dd/yyyy")
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                    DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+                    DateTimeFormatter.ofPattern("MM/dd/yyyy")
             };
 
             for (DateTimeFormatter f : formats) {
@@ -962,7 +962,7 @@ public class moneyMarket {
             writeMoneyCSV(userID, MoneyID, balance, isEmployee);
             logTransaction("DEPOSIT", depositamt);
             return balance += depositamt;
-            
+
         } else {
             System.out.println("Deposit has to be a positive.");
         }
@@ -1065,7 +1065,7 @@ public class moneyMarket {
 
                 if (data[0].trim().equals(MoneyID)) {
                     found = true;
-                    
+
 
                     int withdrawCount = readSafeInt(data, 5, 0);
                     LocalDate lastReset = readSafeLocalDate(data, 6, today);
@@ -1139,13 +1139,13 @@ public class moneyMarket {
             }
         }
 
-       Files.move(temp, csvPathFee, StandardCopyOption.REPLACE_EXISTING);
-       return success;
+        Files.move(temp, csvPathFee, StandardCopyOption.REPLACE_EXISTING);
+        return success;
     }
 
-    
 
-public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boolean fromsource, double externalValue) throws IOException {
+
+    public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boolean fromsource, double externalValue) throws IOException {
 
         while (true) {
 
@@ -1185,7 +1185,7 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
                 fromAccount.updateFlags();
 
                 System.out.printf("  Moved $%.2f: Money Market ($%.2f) <- checking %s ($%.2f)%n",
-                amount, getMoneyMarket(), fromAccount.accountID, fromAccount.balance);
+                        amount, getMoneyMarket(), fromAccount.accountID, fromAccount.balance);
 
             } else if (fromsource && fromAccount == null) {
 
@@ -1220,7 +1220,7 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
                 fromAccount.updateFlags();
 
                 System.out.printf("  Moved $%.2f: Money Market ($%.2f) -> checking %s ($%.2f)%n",
-                amount, getMoneyMarket(), fromAccount.accountID, fromAccount.balance);
+                        amount, getMoneyMarket(), fromAccount.accountID, fromAccount.balance);
 
             } //from SAVINGS to External value.
             else {
@@ -1247,7 +1247,7 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
     public void update() throws IOException {
         yearlyFee();
         monthlyFee();
-        minBalanceFee();        
+        minBalanceFee();
         applyInterest();
         String state = updateNegativeBalance();
         if (state.equalsIgnoreCase("CLOSED")) {
@@ -1504,7 +1504,7 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
 
 
 
-        public static void launch(Scanner sc, User appUser) throws IOException {
+    public static void launch(Scanner sc, User appUser) throws IOException {
         String userid = appUser.customerID;
 
         // BUG FIX 1: Try to open existing account FIRST.
@@ -1534,27 +1534,35 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
         } catch (IOException e) {
             System.out.println("  Note: Could not load checking accounts for transfer.");
         }
-        
-        
+
+
         moneyMarket moneyUser = null;
         try {
-    if (moneyMarketUsers == null || moneyMarketUsers.isEmpty()) {
+            if (moneyMarketUsers == null || moneyMarketUsers.isEmpty()) {
 
-        System.out.println("Money Market account doesn't exist... Creating account.");
+                System.out.println("Money Market account doesn't exist... Creating account.");
 
-        moneyUser = moneyMarket.createmoneyMarket(userid, minimumbalance);
+                moneyUser = moneyMarket.createmoneyMarket(userid, minimumbalance);
 
-        moneyMarketUsers = new ArrayList<>();
-        moneyMarketUsers.add(moneyUser);
+                moneyMarketUsers = new ArrayList<>();
+                moneyMarketUsers.add(moneyUser);
 
-    } else {
+            } else {
 
-        moneyUser = moneyMarketUsers.get(0); // or pickAccount if needed
-    }
+                moneyUser = moneyMarketUsers.get(0); // or pickAccount if needed
+            }
 
-} catch (IOException e) {
-    System.out.println("Note: Could not load money market");
-}
+        } catch (IOException e) {
+            System.out.println("Note: Could not load money market");
+        }
+        // Null guard — createmoneyMarket returns null if birth certificate,
+        // phone, or SSN verification fails in the CSV
+        if (moneyUser == null) {
+            System.out.println("  Could not load or create a Money Market account.");
+            System.out.println("  Ensure your profile has a phone number and SSN on file.");
+            return;
+        }
+
         final List<CheckingAccount.CheckingUser> checkingUsersRef = allCheckingUsers;
 
         // Transaction menu
@@ -1611,13 +1619,13 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
                         break;
                     }
                     System.out.print("  Amount to transfer: $");
-                        // Move the money
-                        moneyUser.transfer(from, sc, true, 0);
-                        moneyUser.update();
-                        // Save both CSVs
-                        CheckingAccount.writeCSV("checking_accounts.csv", checkingUsersRef);
-                        // BUG FIX 2: sync updated checking balance back to appUser
-                        appUser.checkingAccount = from.balance;
+                    // Move the money
+                    moneyUser.transfer(from, sc, true, 0);
+                    moneyUser.update();
+                    // Save both CSVs
+                    CheckingAccount.writeCSV("checking_accounts.csv", checkingUsersRef);
+                    // BUG FIX 2: sync updated checking balance back to appUser
+                    appUser.checkingAccount = from.balance;
                 }
                 case "4" -> {
                     // Savings → Checking
@@ -1655,15 +1663,15 @@ public double transfer(CheckingAccount.Account fromAccount, Scanner scanner, boo
 
                 case "6" ->{
                     if(moneyUser.closeMoneyMarket() == null){
-                    running = false;
+                        running = false;
                     }
                 }
                 case "0" ->
-                    running = false;
+                        running = false;
                 default ->
-                    System.out.println("  Invalid option.");
+                        System.out.println("  Invalid option.");
             }
         }
 
-        }
+    }
 }

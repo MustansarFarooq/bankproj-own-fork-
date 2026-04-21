@@ -232,7 +232,7 @@ public class CertificateOfDeposit {
             boolean continueCreating = true;
             while (continueCreating) {
                 System.out.print("\nWould you like to create a Certificate of Deposit? (yes/no): ");
-                String response = scanner.next().toLowerCase();
+                String response = scanner.nextLine().trim().toLowerCase();
 
                 if (response.equals("yes") || response.equals("y")) {
                     CertificateOfDeposit cd = cdInterface(scanner, customerID);
@@ -241,13 +241,13 @@ public class CertificateOfDeposit {
                         activeCDs.put(cd.getCdID(), cd);
 
                         System.out.print("\nWould you like to create another CD? (yes/no): ");
-                        String another = scanner.next().toLowerCase();
+                        String another = scanner.nextLine().trim().toLowerCase();
                         if (!another.equals("yes") && !another.equals("y")) {
                             continueCreating = false;
                         }
                     } else {
                         System.out.print("\nWould you like to try again? (yes/no): ");
-                        String retry = scanner.next().toLowerCase();
+                        String retry = scanner.nextLine().trim().toLowerCase();
                         if (!retry.equals("yes") && !retry.equals("y")) {
                             continueCreating = false;
                         }
@@ -298,7 +298,7 @@ public class CertificateOfDeposit {
             System.out.println("5. 60 months - 5.5% APY");
 
             System.out.print("\nSelect term option (1-5): ");
-            int choice = scanner.nextInt();
+            int choice = Integer.parseInt(scanner.nextLine().trim());
 
             int termMonths;
             double interestRate;
@@ -314,7 +314,7 @@ public class CertificateOfDeposit {
             }
 
             System.out.print("\nEnter deposit amount (minimum $1,000): $");
-            double amount = scanner.nextDouble();
+            double amount = Double.parseDouble(scanner.nextLine().trim());
 
             if (amount < MIN_DEPOSIT) {
                 System.out.println("Error: The amount is less than $1,000. Minimum deposit is $" + String.format("%.2f", MIN_DEPOSIT));
@@ -368,14 +368,14 @@ public class CertificateOfDeposit {
         }
 
         System.out.print("\nDo you wish to withdraw money from a CD? (yes/no): ");
-        String response = scanner.next().toLowerCase();
+        String response = scanner.nextLine().trim().toLowerCase();
         if (!response.equals("yes") && !response.equals("y")) {
             System.out.println("Returning to menu...");
             return;
         }
 
         System.out.print("Enter CD ID: ");
-        String cdID = scanner.next();
+        String cdID = scanner.nextLine().trim();
         CertificateOfDeposit cd = activeCDs.get(cdID);
 
         if (cd == null || !cd.getCustomerID().equals(customerID)) {
@@ -398,7 +398,7 @@ public class CertificateOfDeposit {
             System.out.println("If you withdraw now, a 10% penalty will be applied.");
 
             System.out.print("\nAre you sure you want to withdraw early? (yes/no): ");
-            String confirm = scanner.next().toLowerCase();
+            String confirm = scanner.nextLine().trim().toLowerCase();
 
             if (confirm.equals("yes") || confirm.equals("y")) {
                 cd.withdrawEarly();

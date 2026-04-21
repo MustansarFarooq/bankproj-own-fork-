@@ -1,0 +1,2 @@
+AnnuityID,UserID,Type,Premium,PrincipalPaid,PurchaseDate,MaturityDate,PaymentSourceID,ReturnDestinationID,Status
+ANN-993195,902728545,INDEXED,1000.00,1000.00,2026-04-20,2031-04-20,902728545-CHK,100278542315,ACTIVE

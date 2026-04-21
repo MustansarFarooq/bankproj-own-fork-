@@ -3,3 +3,16 @@ LoanID,LoanType,Principal,RemainingBalance,TotalPaid,PaymentsMade,InterestRate,A
 LN78707,car,200.0,208.8,0.0,0,0.08,true,false,2026-04-20
 LN46050,mecial,400.0,434.16,0.0,0,0.08,true,false,2026-04-20
 LN46050,mecial,400.0,416.07,18.09,1,0.08,true,false,2026-04-20
+LN88915,medical,200.0,208.8,0.0,0,0.08,true,false,2026-04-20
+LN88915,medical,200.0,191.4,17.4,1,0.08,true,false,2026-04-20
+LN88915,medical,200.0,174.0,34.8,2,0.08,true,true,2026-04-20
+LN88915,medical,200.0,156.6,52.2,3,0.08,true,true,2026-04-20
+LN88915,medical,200.0,139.2,69.6,4,0.08,true,true,2026-04-20
+LN88915,medical,200.0,121.8,87.0,5,0.08,true,true,2026-04-20
+LN88915,medical,200.0,104.4,104.4,6,0.08,true,true,2026-04-20
+LN88915,medical,200.0,87.0,121.8,7,0.08,true,true,2026-04-20
+LN88915,medical,200.0,69.6,139.2,8,0.08,true,true,2026-04-20
+LN88915,medical,200.0,52.2,156.6,9,0.08,true,true,2026-04-20
+LN88915,medical,200.0,34.8,174.0,10,0.08,true,true,2026-04-20
+LN88915,medical,200.0,17.4,191.4,11,0.08,true,true,2026-04-20
+LN88915,medical,200.0,0.0,208.8,12,0.08,true,true,2026-04-20

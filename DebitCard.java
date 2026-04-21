@@ -17,8 +17,8 @@ public class DebitCard {
     private static final double MONTHLY_MAINTENANCE_FEE = 10.00;
     private static final double FOREIGN_TRANSACTION_FEE_RATE = 0.02;
 
-    // CSV Index Constants (Using 18, NOT 14!)
-    private static final int CSV_CUSTOMER_HAS_DEBIT_IDX = 18;
+    // CSV Index Constants — hasDebitCard is column 14 in customerInfo.csv
+    private static final int CSV_CUSTOMER_HAS_DEBIT_IDX = 14;
 
     // Card properties
     private String debitCardNumber;
