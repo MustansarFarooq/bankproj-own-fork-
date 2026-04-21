@@ -30,7 +30,7 @@ public class menu {
     private String hashPassword(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-                byte[] hash = md.digest(password.getBytes());
+            byte[] hash = md.digest(password.getBytes());
             return Base64.getEncoder().encodeToString(hash);
         } catch (Exception e) {
             return password; // fallback — should never happen with SHA-256
@@ -500,6 +500,24 @@ public class menu {
                     db.updateUser(currentUser); // sync balance changes back to customerInfo.csv
                 } catch (Exception e) {
                     System.out.println("  Error loading Savings module: " + e.getMessage());
+                    pause();
+                }
+            }
+            case "Loans" -> {
+                try {
+                    LoansModule.launch(sc, currentUser);
+                    db.updateUser(currentUser); // sync balance changes back to customerInfo.csv
+                } catch (Exception e) {
+                    System.out.println("  Error loading Loans module: " + e.getMessage());
+                    pause();
+                }
+            }
+            case "Investments" -> {
+                try {
+                    InvestmentsModule.launch(sc, currentUser);
+                    db.updateUser(currentUser);
+                } catch (Exception e) {
+                    System.out.println("  Error loading Investments module: " + e.getMessage());
                     pause();
                 }
             }

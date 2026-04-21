@@ -1,0 +1,5 @@
+LoanID,LoanType,Principal,RemainingBalance,TotalPaid,PaymentsMade,InterestRate,Approved,AutoPayEnabled,StartDate
+
+LN78707,car,200.0,208.8,0.0,0,0.08,true,false,2026-04-20
+LN46050,mecial,400.0,434.16,0.0,0,0.08,true,false,2026-04-20
+LN46050,mecial,400.0,416.07,18.09,1,0.08,true,false,2026-04-20
