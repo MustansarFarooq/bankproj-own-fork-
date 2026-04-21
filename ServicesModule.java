@@ -145,6 +145,8 @@ public class ServicesModule {
     private static void debitCardMenu(Scanner sc, User appUser, List<CheckingAccount.CheckingUser> checkingUsers) throws IOException {
         DebitCard.setBankingUsers(checkingUsers);
 
+        DebitCard currentCard = DebitCard.loadCard(appUser.customerID);
+
         boolean running = true;
         while (running) {
             System.out.println("\n────────────────────────────────────────");
@@ -166,29 +168,144 @@ public class ServicesModule {
 
             switch (choice) {
                 case "1" -> {
-                    DebitCard card = DebitCard.issueCard(sc, appUser.customerID);
-                    if (card != null) {
+                    currentCard = DebitCard.issueCard(sc, appUser.customerID);
+                    if (currentCard != null) {
                         System.out.println("  Card successfully issued!");
                     }
                 }
+
                 case "2" -> {
-                    System.out.print("  Enter debit card PIN: ");
+                    if (currentCard == null) {
+                        System.out.println("  No active debit card.");
+                        break;
+                    }
+
+                    System.out.print("  Enter PIN: ");
                     String pin = sc.nextLine().trim();
-                    System.out.println("  [Card balance information would be shown here]");
+
+                    if (currentCard.verifyPin(pin)) {
+                        currentCard.checkBalance();
+                    } else {
+                        System.out.println("  Invalid PIN.");
+                    }
                 }
-                case "3" -> System.out.println("  [POS withdrawal functionality]");
-                case "4" -> System.out.println("  [ATM withdrawal functionality]");
-                case "5" -> System.out.println("  [Deposit functionality]");
-                case "6" -> System.out.println("  [Foreign transaction functionality]");
-                case "7" -> System.out.println("  [Fee schedule shown here]");
-                case "8" -> System.out.println("  [Card replacement functionality]");
-                case "9" -> System.out.println("  [Card closure functionality]");
+
+                case "3" -> {
+                    if (currentCard == null) {
+                        System.out.println("  No active debit card.");
+                        break;
+                    }
+
+                    System.out.print("  Enter PIN: ");
+                    String pin = sc.nextLine().trim();
+
+                    if (!currentCard.verifyPin(pin)) {
+                        System.out.println("  Invalid PIN.");
+                        break;
+                    }
+
+                    System.out.print("  Enter withdrawal amount: $");
+                    double amount = Double.parseDouble(sc.nextLine().trim());
+
+                    if (currentCard.withdraw(amount)) {
+                        System.out.println("  Withdrawal successful.");
+                    } else {
+                        System.out.println("  Withdrawal failed.");
+                    }
+                }
+
+                case "4" -> {
+                    if (currentCard == null) {
+                        System.out.println("  No active debit card.");
+                        break;
+                    }
+
+                    System.out.print("  Enter PIN: ");
+                    String pin = sc.nextLine().trim();
+
+                    if (!currentCard.verifyPin(pin)) {
+                        System.out.println("  Invalid PIN.");
+                        break;
+                    }
+
+                    System.out.print("  Enter amount: $");
+                    double amount = Double.parseDouble(sc.nextLine().trim());
+
+                    System.out.print("  Own bank ATM? (yes/no): ");
+                    boolean ownATM = sc.nextLine().trim().equalsIgnoreCase("yes");
+
+                    if (currentCard.withdrawFromATM(amount, ownATM)) {
+                        System.out.println("  ATM withdrawal successful.");
+                    } else {
+                        System.out.println("  Withdrawal failed.");
+                    }
+                }
+
+                case "5" -> {
+                    if (currentCard == null) {
+                        System.out.println("  No active debit card.");
+                        break;
+                    }
+
+                    System.out.print("  Enter amount to deposit: $");
+                    double amount = Double.parseDouble(sc.nextLine().trim());
+
+                    if (currentCard.deposit(amount)) {
+                        System.out.println("  Deposit successful.");
+                    } else {
+                        System.out.println("  Deposit failed.");
+                    }
+                }
+
+                case "6" -> {
+                    if (currentCard == null) {
+                        System.out.println("  No active debit card.");
+                        break;
+                    }
+
+                    System.out.print("  Enter amount: $");
+                    double amount = Double.parseDouble(sc.nextLine().trim());
+
+                    System.out.print("  Enter currency: ");
+                    String currency = sc.nextLine().trim();
+
+                    if (currentCard.foreignTransaction(amount, currency)) {
+                        System.out.println("  Transaction successful.");
+                    } else {
+                        System.out.println("  Transaction failed.");
+                    }
+                }
+
+                case "7" -> {
+                    if (currentCard != null) {
+                        currentCard.displayFeeSchedule();
+                    } else {
+                        System.out.println("  No active card.");
+                    }
+                }
+
+                case "8" -> {
+                    if (currentCard == null) {
+                        System.out.println("  No active card.");
+                        break;
+                    }
+
+                    currentCard = currentCard.replaceCard(sc, "replacement");
+                }
+
+                case "9" -> {
+                    if (currentCard != null) {
+                        currentCard.closeCard();
+                        currentCard = null;
+                    }
+                }
+
                 case "0" -> running = false;
-                default  -> System.out.println("  Invalid option.");
+
+                default -> System.out.println("  Invalid option.");
             }
         }
     }
-
     private static void currencyConverterMenu(Scanner sc) {
         System.out.println("\n────────────────────────────────────────");
         System.out.println("BANK  |  Currency Converter");

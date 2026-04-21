@@ -174,23 +174,71 @@ public class DebitCard {
         try {
             if (!Files.exists(DEBIT_CARD_CSV_PATH)) return null;
 
-            csvFile debitFile = new csvFile(DEBIT_CARD_CSV_PATH);
-            Map<String, String> record = debitFile.getRecord("userid", userid);
+            List<String> lines = Files.readAllLines(DEBIT_CARD_CSV_PATH);
+            if (lines.isEmpty()) return null;
 
-            if (record != null) {
-                String pin = record.get("debitPin");
-                if (pin != null) return pin.trim();
+            String[] headers = lines.get(0).split(",");
+
+            // Find the index of the "debitPin" column
+            int pinIndex = -1;
+            int userIdIndex = -1;
+
+            for (int i = 0; i < headers.length; i++) {
+                String header = headers[i].trim().toLowerCase();
+                if (header.equals("debitpin")) pinIndex = i;
+                if (header.equals("userid")) userIdIndex = i;
             }
+
+            if (pinIndex == -1 || userIdIndex == -1) {
+                System.out.println("Error: Required columns not found in debitCard.csv");
+                return null;
+            }
+
+            // Search for the matching user
+            for (int i = 1; i < lines.size(); i++) {
+                String[] values = lines.get(i).split(",", -1);
+
+                if (values.length > Math.max(pinIndex, userIdIndex) &&
+                        values[userIdIndex].trim().equals(userid)) {
+
+                    return values[pinIndex].trim();
+                }
+            }
+
         } catch (IOException e) {
             System.out.println("Error reading PIN from CSV: " + e.getMessage());
         }
+
         return null;
     }
 
     public static DebitCard issueCard(Scanner scanner, String customerId) {
         try {
-            csvFile customerFile = new csvFile(CUSTOMER_CSV_PATH);
-            Map<String, String> customerRecord = customerFile.getRecord("customerID", customerId);
+            Map<String, String> customerRecord = new java.util.HashMap<>();
+
+            List<String> lines = Files.readAllLines(CUSTOMER_CSV_PATH);
+            if (lines.isEmpty()) {
+                System.out.println("Error: customerInfo.csv is empty");
+                return null;
+            }
+
+            String[] headers = lines.get(0).split(",");
+
+            for (int i = 1; i < lines.size(); i++) {
+                String[] values = lines.get(i).split(",", -1);
+
+                if (values[0].trim().equals(customerId)) { // assuming customerID is column 0
+                    for (int j = 0; j < headers.length; j++) {
+                        customerRecord.put(headers[j].trim(), values[j].trim());
+                    }
+                    break;
+                }
+            }
+
+            if (customerRecord.isEmpty()) {
+                System.out.println("Error: Customer not found in customerInfo.csv");
+                return null;
+            }
 
             if (customerRecord == null) {
                 System.out.println("Error: Customer not found in customerInfo.csv");
@@ -476,5 +524,52 @@ public class DebitCard {
         System.out.println("Monthly Maintenance Fee: $" + MONTHLY_MAINTENANCE_FEE);
         System.out.println("Foreign Transaction Fee: " + (FOREIGN_TRANSACTION_FEE_RATE * 100) + "%");
         System.out.println("Card Status: " + (isActive ? "Active" : "Inactive"));
+    }
+
+    public static DebitCard loadCard(String customerId) {
+        try {
+            if (!Files.exists(DEBIT_CARD_CSV_PATH)) return null;
+
+            List<String> lines = Files.readAllLines(DEBIT_CARD_CSV_PATH);
+            if (lines.isEmpty()) return null;
+
+            String[] headers = lines.get(0).split(",");
+
+            int userIdIndex = -1, pinIndex = -1, issueIndex = -1, feeIndex = -1;
+
+            for (int i = 0; i < headers.length; i++) {
+                String h = headers[i].trim().toLowerCase();
+                if (h.equals("userid")) userIdIndex = i;
+                if (h.equals("debitpin")) pinIndex = i;
+                if (h.equals("issuedate")) issueIndex = i;
+                if (h.equals("lastmaintenancefeedate")) feeIndex = i;
+            }
+
+            for (int i = 1; i < lines.size(); i++) {
+                String[] values = lines.get(i).split(",", -1);
+
+                if (values[userIdIndex].trim().equals(customerId)) {
+
+                    String pin = values[pinIndex].trim();
+                    String cardNumber = generateCardNumber(); // not stored, so regenerate
+                    String accountId = CheckingAccount.findUser(bankingUsers, customerId).accounts.get(0).accountID;
+
+                    DebitCard card = new DebitCard(cardNumber, pin, customerId, accountId);
+
+                    // restore dates
+                    if (issueIndex != -1)
+                        card.issueDate = LocalDate.parse(values[issueIndex].trim());
+                    if (feeIndex != -1)
+                        card.lastMaintenanceFeeDate = LocalDate.parse(values[feeIndex].trim());
+
+                    return card;
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error loading debit card: " + e.getMessage());
+        }
+
+        return null;
     }
 }

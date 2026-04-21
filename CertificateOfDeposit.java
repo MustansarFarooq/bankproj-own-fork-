@@ -197,7 +197,7 @@ public class CertificateOfDeposit {
                 if (fields.length > CSV_SAVINGS_BALANCE_IDX) {
                     fields[CSV_SAVINGS_BALANCE_IDX] = String.valueOf(newBalance);
                 }
-                lines.set(i, String.join(",", fields));
+                lines.set(i, String.join("customerID,", fields));
                 break;
             }
         }
@@ -208,13 +208,32 @@ public class CertificateOfDeposit {
 
     public static void welcomeScreen(Scanner scanner, String customerID) {
         try {
-            csvFile customerFile = new csvFile(CUSTOMER_CSV_PATH);
-            Map<String, String> customerRecord = customerFile.getRecord("customerID", customerID);
+            Map<String, String> customerRecord = new HashMap<>();
 
-            if (customerRecord == null) {
-                System.out.println("Error: Customer not found");
+            List<String> lines = Files.readAllLines(CUSTOMER_CSV_PATH);
+            if (lines.isEmpty()) {
+                System.out.println("Error: Customer file is empty.");
                 return;
             }
+
+            String[] headers = lines.get(0).split(",");
+
+            for (int i = 1; i < lines.size(); i++) {
+                String[] values = lines.get(i).split(",", -1);
+
+                if (values[0].trim().equals(customerID)) { // assuming customerID is column 0
+                    for (int j = 0; j < headers.length; j++) {
+                        customerRecord.put(headers[j].trim(), values[j].trim());
+                    }
+                    break;
+                }
+            }
+
+            if (customerRecord.isEmpty()) {
+                System.out.println("Error: Customer record not found.");
+                return;
+            }
+
 
             String firstName = customerRecord.get("firstName");
             String lastName = customerRecord.get("lastName");
