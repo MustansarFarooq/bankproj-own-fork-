@@ -42,7 +42,7 @@ public class moneyMarket {
     /* Static Final variables */
     private static final Path csvPath = Path.of("Money.csv"); // fine the path for the CSV file
     private static final Path csvPathFee = Path.of("MoneyFee.csv"); // measuring monthly
-    private static final Path csvCustomerInfo = Path.of("customerinfo.csv");
+    private static final Path csvCustomerInfo = Path.of("customerInfo.csv");
     private static final Path csvEmployeecsv = Path.of("employeecards.csv");
     private static final Path csvEmployeeMoneyMarketcsv = Path.of("EmployeeMoneyMarket.csv");
     private final Path isEmployeeCSV = isEmployee ? csvEmployeeMoneyMarketcsv : csvPath;
@@ -313,7 +313,7 @@ public class moneyMarket {
             return null;
         }
         moneyMarket account = null; //added null so nothing bad can happen such as unitialization.
-        if (MoneyMarketamount == minimumbalance) {
+        if (MoneyMarketamount >= minimumbalance && MoneyMarketamount <= maximumbalance) {
             account = new moneyMarket();
             account.userID = userID;
             account.setMoneyID(MoneyID);
@@ -339,7 +339,15 @@ public class moneyMarket {
         Path currentCSV = isEmployee(userID) ? csvEmployeeMoneyMarketcsv : csvPath;
         try (BufferedWriter bw = Files.newBufferedWriter(currentCSV, StandardOpenOption.APPEND)) {
 
-            bw.write(account.userID + "," + account.MoneyID + "," + account.balance + "," + account.driversLicense + "," + date + "," + account.birthcertificate + "," + "ACTIVE" + ",");
+            bw.write(String.join(",",
+                    account.userID,
+                    account.MoneyID,
+                    String.valueOf(account.balance),
+                    account.driversLicense,
+                    date,
+                    account.birthcertificate,
+                    "ACTIVE"
+            ));
             bw.newLine(); // make a new line when written.
         }
         writefeeUser(account.MoneyID);
@@ -925,46 +933,43 @@ public class moneyMarket {
 
     }
 
-    public static String getSocialSecurity(String userID) throws IOException { // Grab phone number by searching through CSV
+    //END
+    public void setMoneyID(String MoneyID) {
+        this.MoneyID = MoneyID;
+    }
+
+    public static String getSocialSecurity(String userID) throws IOException {
         try (BufferedReader readfile = Files.newBufferedReader(csvCustomerInfo)) {
+
             String line;
             while ((line = readfile.readLine()) != null) {
-                boolean valid = true;
-                String[] dataline = line.split(",", -1);
-                if (dataline.length > 0 && dataline[0].trim().equals(userID)) {
-                    String socialSecurity = dataline.length > 3 ? dataline[3] : ""; //social security is in the fourth column. 
-                    socialSecurity = socialSecurity.replaceAll("[^0-9]", "");
-                    if (socialSecurity.length() == 9) { //it has to be equal to 9 otherwise return a null to interrupt account creation
 
-                        for (int i = 0; i < socialSecurity.length(); i++) { //just in case replaceall missed something.
-                            if (!Character.isDigit(socialSecurity.charAt(i))) { //this is copied from phone number code.
-                                valid = false;
-                                break;//break out of here and return a null few lines down if there is a character inside a socialsecurity number
-                            }
-                        }
-                        if (valid) { //valid helps us here by checking if characters are in the digits or not
-                            return socialSecurity;
-                        }
+                String[] data = line.split(",", -1);
+
+                if (data.length > 3 && data[0].trim().equals(userID)) {
+
+                    String ssn = data[3].trim();
+
+                    // normalize 123-45-6789 → 123456789
+                    ssn = ssn.replaceAll("[^0-9]", "");
+
+                    if (ssn.length() == 9) {
+                        return ssn;
                     }
                 }
             }
         }
         return null;
     }
-    //END
 
-    public void setMoneyID(String MoneyID) {
-        this.MoneyID = MoneyID;
-    }
-
-    public double depositMoneyMarket(double depositamt) throws IOException { //how much you deposit.
+    public double depositMoneyMarket(double depositamt) throws IOException {
         if (depositamt > 0) {
+            balance += depositamt;
             writeMoneyCSV(userID, MoneyID, balance, isEmployee);
             logTransaction("DEPOSIT", depositamt);
-            return balance += depositamt;
-
+            return balance;
         } else {
-            System.out.println("Deposit has to be a positive.");
+            System.out.println("Deposit must be positive.");
         }
         return balance;
     }
